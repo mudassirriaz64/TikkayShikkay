@@ -18,6 +18,7 @@ export interface MenuItem {
   is_bestseller: boolean;
   is_available: boolean;
   image_url: string;
+  image_public_id?: string;
 }
 
 export type MenuRibbon = "Legendary" | "Chef's Choice";
@@ -43,6 +44,7 @@ export interface PlatterData {
   baseLabel: string;
   basePrice: number;
   imageUrl: string;
+  image_public_id?: string;
   meats: PlatterOption[];
   sides: PlatterOption[];
 }

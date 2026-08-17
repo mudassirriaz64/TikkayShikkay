@@ -16,6 +16,7 @@ import {
 } from "@/types/contact";
 import { Check, MapPin, Plus, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 type ContactTabKey = "methods" | "hours" | "map" | "ctas";
 
@@ -318,9 +319,20 @@ function CtasManager() {
           <Field label="Quote Label">
             <TextInput value={catering.quoteLabel} onChange={(e) => setCatering({ ...catering, quoteLabel: e.target.value })} />
           </Field>
-          <Field label="Image URL">
-            <TextInput value={catering.imageUrl} onChange={(e) => setCatering({ ...catering, imageUrl: e.target.value })} />
-          </Field>
+          <div className="md:col-span-2">
+            <ImageUpload
+              label="Catering Banner Image"
+              value={catering.imageUrl}
+              folder="contact/catering"
+              onChange={(url, publicId) =>
+                setCatering({
+                  ...catering,
+                  imageUrl: url,
+                  image_public_id: publicId,
+                })
+              }
+            />
+          </div>
           <Field label="Description" className="md:col-span-2">
             <TextArea value={catering.description} onChange={(e) => setCatering({ ...catering, description: e.target.value })} />
           </Field>

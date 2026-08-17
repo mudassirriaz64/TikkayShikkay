@@ -29,6 +29,7 @@ export interface GalleryCategoryFilter {
 export interface GalleryImage {
   id: string;
   imageUrl: string;
+  image_public_id?: string;
   caption: string;
   location: string;
   category: GalleryCategoryId;
@@ -48,6 +49,7 @@ export interface VideoTestimonial {
 export interface InstagramPost {
   id: string;
   imageUrl: string;
+  image_public_id?: string;
   caption: string;
   tag: string;
   likes: number;
@@ -74,6 +76,7 @@ export interface CustomerStory {
   id: string;
   customer_name: string;
   imageUrl: string;
+  image_public_id?: string;
   favorite_meal: string;
   years_visiting: number;
   visits: number;
@@ -86,6 +89,7 @@ export interface KitchenProcess {
   step: number;
   title: string;
   imageUrl: string;
+  image_public_id?: string;
   story: string;
   fact: string;
   time: string;
@@ -103,6 +107,7 @@ export interface JourneyMilestone {
   year: string;
   title: string;
   imageUrl: string;
+  image_public_id?: string;
   story: string;
   badge: string;
   type: JourneyType;
@@ -116,6 +121,7 @@ export interface GalleryHeroData {
   titleAccent: string;
   description: string;
   imageUrl: string;
+  image_public_id?: string;
 }
 
 export interface GalleryCtaData {

@@ -24,6 +24,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 type GalleryTabKey = "photos" | "kitchen" | "journey" | "social";
 
@@ -221,9 +222,16 @@ function KitchenManager() {
             <Field label="Time">
               <TextInput value={editing.time} onChange={(e) => setEditing({ ...editing, time: e.target.value })} />
             </Field>
-            <Field label="Image URL">
-              <TextInput value={editing.imageUrl} onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })} />
-            </Field>
+            <div className="md:col-span-2">
+              <ImageUpload
+                label="Process Image"
+                value={editing.imageUrl}
+                folder="gallery/kitchen"
+                onChange={(url, publicId) =>
+                  setEditing({ ...editing, imageUrl: url, image_public_id: publicId })
+                }
+              />
+            </div>
             <div className="md:col-span-2">
               <Field label="Story">
                 <TextArea value={editing.story} onChange={(e) => setEditing({ ...editing, story: e.target.value })} />
@@ -330,9 +338,16 @@ function JourneyManager() {
                 ))}
               </Select>
             </Field>
-            <Field label="Image URL" className="md:col-span-2">
-              <TextInput value={editing.imageUrl} onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })} />
-            </Field>
+            <div className="md:col-span-2">
+              <ImageUpload
+                label="Milestone Image"
+                value={editing.imageUrl}
+                folder="gallery/journey"
+                onChange={(url, publicId) =>
+                  setEditing({ ...editing, imageUrl: url, image_public_id: publicId })
+                }
+              />
+            </div>
             <div className="md:col-span-3">
               <Field label="Story">
                 <TextArea value={editing.story} onChange={(e) => setEditing({ ...editing, story: e.target.value })} />

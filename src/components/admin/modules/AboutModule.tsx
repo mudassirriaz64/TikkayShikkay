@@ -10,6 +10,7 @@ import { FounderDetails, StatItem, MilestoneStat } from "@/types";
 import { JourneyPost, MediaType } from "@/types";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { Check, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 type AboutTabKey = "founder" | "stats" | "journey" | "milestones";
 
@@ -79,9 +80,16 @@ function FounderManager() {
         }
       >
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <Field label="Portrait URL">
-            <TextInput value={draft.portraitUrl} onChange={(e) => set("portraitUrl", e.target.value)} />
-          </Field>
+          <div className="md:col-span-2">
+            <ImageUpload
+              label="Founder Portrait"
+              value={draft.portraitUrl}
+              folder="about/founder"
+              onChange={(url, publicId) =>
+                setDraft({ ...draft, portraitUrl: url, portrait_public_id: publicId })
+              }
+            />
+          </div>
           <Field label="Quote Author">
             <TextInput value={draft.quoteAuthor} onChange={(e) => set("quoteAuthor", e.target.value)} />
           </Field>
@@ -242,15 +250,25 @@ function JourneyPostsManager() {
             <Field label="Title">
               <TextInput value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
             </Field>
-            <Field label="Media Type">
-              <Select value={editing.media_type} onChange={(e) => setEditing({ ...editing, media_type: e.target.value as MediaType })}>
-                <option value="Image">Image</option>
-                <option value="Video">Video</option>
-              </Select>
-            </Field>
-            <Field label="Media URL">
-              <TextInput value={editing.media_url} onChange={(e) => setEditing({ ...editing, media_url: e.target.value })} />
-            </Field>
+            <div className="md:col-span-2">
+              {editing.media_type === "Image" ? (
+                <ImageUpload
+                  label="Journey Media"
+                  value={editing.media_url}
+                  folder="gallery/journey"
+                  onChange={(url, publicId) =>
+                    setEditing({ ...editing, media_url: url, image_public_id: publicId })
+                  }
+                />
+              ) : (
+                <Field label="Video URL">
+                  <TextInput
+                    value={editing.media_url}
+                    onChange={(e) => setEditing({ ...editing, media_url: e.target.value })}
+                  />
+                </Field>
+              )}
+            </div>
             <div className="md:col-span-2">
               <Field label="Content">
                 <TextArea value={editing.content} onChange={(e) => setEditing({ ...editing, content: e.target.value })} />

@@ -1,5 +1,6 @@
 export interface FounderDetails {
   portraitUrl: string;
+  portrait_public_id?: string;
   quote: string;
   quoteAuthor: string;
   quoteRole: string;

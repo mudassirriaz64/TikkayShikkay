@@ -11,10 +11,14 @@ export interface UploadResult {
 }
 
 export const uploadService = {
-  uploadFile(file: File): Promise<UploadResult> {
+  uploadFile(file: File, folder?: string): Promise<UploadResult> {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post<UploadResult>('/upload', formData, {
+    if (folder) {
+      formData.append('folder', folder);
+    }
+    const path = folder ? `/upload?folder=${encodeURIComponent(folder)}` : '/upload';
+    return api.post<UploadResult>(path, formData, {
       timeoutMs: 60000,
     });
   },

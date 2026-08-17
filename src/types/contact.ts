@@ -46,6 +46,7 @@ export interface CateringData {
   menuLabel: string;
   quoteLabel: string;
   imageUrl: string;
+  image_public_id?: string;
 }
 
 export interface FranchiseData {

@@ -22,6 +22,7 @@ import {
 } from "@/types";
 import { Check, Filter, Layers, Pencil, Plus, Search, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 type MenuTabKey = "items" | "categories" | "featured" | "platter" | "boti" | "sides";
 
@@ -144,12 +145,20 @@ function MenuItemForm({
         )}
       </Field>
 
-      <Field label="Image URL">
-        <TextInput
+      <div className="md:col-span-2">
+        <ImageUpload
+          label="Item Image"
           value={value.image_url}
-          onChange={(e) => set("image_url", e.target.value)}
+          folder={`menu/${categories.find((c) => c.id === value.category_id)?.slug || "tikka"}`}
+          onChange={(url, publicId) => {
+            onChange({
+              ...value,
+              image_url: url,
+              image_public_id: publicId,
+            });
+          }}
         />
-      </Field>
+      </div>
 
       <div className="md:col-span-2">
         <Field label="Description">
@@ -1035,16 +1044,23 @@ function PlatterManager() {
           </>
         }
       >
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <Field label="Base Label">
             <TextInput value={draft.baseLabel} onChange={(e) => setDraft({ ...draft, baseLabel: e.target.value })} />
           </Field>
           <Field label="Base Price (PKR)">
             <NumberInput value={draft.basePrice} onChange={(e) => setDraft({ ...draft, basePrice: Number(e.target.value) || 0 })} />
           </Field>
-          <Field label="Image URL">
-            <TextInput value={draft.imageUrl} onChange={(e) => setDraft({ ...draft, imageUrl: e.target.value })} />
-          </Field>
+        </div>
+        <div className="mt-5">
+          <ImageUpload
+            label="Platter Hero Image"
+            value={draft.imageUrl}
+            folder="menu/platters"
+            onChange={(url, publicId) =>
+              setDraft({ ...draft, imageUrl: url, image_public_id: publicId })
+            }
+          />
         </div>
       </SectionCard>
 

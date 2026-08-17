@@ -22,6 +22,7 @@ export interface SiteSettings {
   hero_title: string;
   hero_subtitle: string;
   hero_media_url: string;
+  hero_media_public_id?: string;
   live_cam_active: boolean;
   fresh_batch_count: number;
   address: SiteAddress;

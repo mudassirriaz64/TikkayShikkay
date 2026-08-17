@@ -7,6 +7,7 @@ import { Notice, PageHeader, SectionCard } from "../ui/panel";
 import { Button } from "@/components/ui/Button";
 import { Check } from "lucide-react";
 import { SiteSettings } from "@/types";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 export function SettingsModule() {
   const { data, updateSlice } = useAdminData();
@@ -34,21 +35,25 @@ export function SettingsModule() {
         title="Homepage Hero"
         description="Shown in the hero section on the landing page"
       >
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="space-y-5">
           <Field label="Hero Title">
             <TextInput
               value={draft.hero_title}
               onChange={(e) => setDraft({ ...draft, hero_title: e.target.value })}
             />
           </Field>
-          <Field label="Hero Media URL">
-            <TextInput
-              value={draft.hero_media_url}
-              onChange={(e) =>
-                setDraft({ ...draft, hero_media_url: e.target.value })
-              }
-            />
-          </Field>
+          <ImageUpload
+            label="Hero Background Media"
+            value={draft.hero_media_url}
+            folder="settings/hero"
+            onChange={(url, publicId) =>
+              setDraft({
+                ...draft,
+                hero_media_url: url,
+                hero_media_public_id: publicId,
+              })
+            }
+          />
         </div>
         <div className="mt-5">
           <Field label="Hero Subtitle">
