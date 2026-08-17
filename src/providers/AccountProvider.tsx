@@ -152,6 +152,9 @@ export function AccountProvider({
       setAuthError(null);
       try {
         const res = await authService.login(creds);
+        if (res.accessToken && typeof window !== "undefined") {
+          localStorage.setItem("tikkay_access_token", res.accessToken);
+        }
         setBackendUser(res.user);
         setProfile(backendUserToProfile(res.user));
         setAuthStatus("authenticated");
@@ -186,6 +189,9 @@ export function AccountProvider({
       setAuthError(null);
       try {
         const res = await authService.register(input);
+        if (res.accessToken && typeof window !== "undefined") {
+          localStorage.setItem("tikkay_access_token", res.accessToken);
+        }
         setBackendUser(res.user);
         setProfile(backendUserToProfile(res.user));
         setAuthStatus("authenticated");

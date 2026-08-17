@@ -11,6 +11,7 @@ import { JourneyPost, MediaType } from "@/types";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { Check, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { aboutService } from "@/lib/api";
 
 type AboutTabKey = "founder" | "stats" | "journey" | "milestones";
 
@@ -216,13 +217,24 @@ function JourneyPostsManager() {
   function commit(next: JourneyPost[]) {
     updateSlice("about", { ...data.about, journeyPosts: next });
   }
-  function save() {
+
+  async function save() {
     if (!editing) return;
-    const exists = posts.some((p) => p.id === editing.id);
-    commit(exists ? posts.map((p) => (p.id === editing.id ? editing : p)) : [...posts, editing]);
-    setEditing(null);
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+    const isEdit = posts.some((p) => p.id === editing.id && !p.id.startsWith("post"));
+    try {
+      if (isEdit) {
+        await aboutService.updateJourneyPost(editing.id, editing);
+        commit(posts.map((p) => (p.id === editing.id ? editing : p)));
+      } else {
+        const created = await aboutService.createJourneyPost(editing);
+        commit([...posts, created || editing]);
+      }
+      setEditing(null);
+      setNotice(true);
+      setTimeout(() => setNotice(false), 2000);
+    } catch (e: any) {
+      alert(`Failed to save journey post: ${e?.message}`);
+    }
   }
 
   return (

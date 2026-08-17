@@ -23,6 +23,7 @@ import {
 import { Check, Filter, Layers, Pencil, Plus, Search, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { menuService } from "@/lib/api";
 
 type MenuTabKey = "items" | "categories" | "featured" | "platter" | "boti" | "sides";
 
@@ -301,34 +302,72 @@ function ItemsManager() {
       .replace(/^-+|-+$/g, "");
   }
 
-  function save() {
+  async function save() {
     if (!editing) return;
     const finalItem: MenuItem = {
       ...editing,
       slug: slugify(editing.title) || `dish-${Date.now()}`,
     };
-    const exists = items.some((i) => i.id === finalItem.id);
-    commit(exists ? items.map((i) => (i.id === finalItem.id ? finalItem : i)) : [finalItem, ...items]);
-    setEditing(null);
-    flash("saved");
+    const isEdit = items.some((i) => i.id === finalItem.id);
+
+    try {
+      if (isEdit) {
+        const updated = await menuService.updateItem(finalItem.id, finalItem);
+        commit(items.map((i) => (i.id === finalItem.id ? { ...finalItem, ...updated } : i)));
+      } else {
+        const created = await menuService.createItem(finalItem as any);
+        commit([created || finalItem, ...items]);
+      }
+      setEditing(null);
+      flash("saved");
+    } catch (e: any) {
+      alert(`Save failed: ${e?.message || "Could not save item to backend"}`);
+    }
   }
 
-  function toggle(item: MenuItem, key: "is_bestseller" | "is_available") {
-    commit(items.map((i) => (i.id === item.id ? { ...i, [key]: !i[key] } : i)));
+  async function toggle(item: MenuItem, key: "is_bestseller" | "is_available") {
+    const updatedVal = !item[key];
+    const patch = { [key]: updatedVal };
+    try {
+      await menuService.updateItem(item.id, patch);
+      commit(items.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
+    } catch (e: any) {
+      alert(`Failed to update status: ${e?.message}`);
+    }
   }
 
-  function handleAddCategory(categoryName: string) {
+  async function handleDelete(item: MenuItem) {
+    try {
+      await menuService.deleteItem(item.id);
+      commit(items.filter((i) => i.id !== item.id));
+      flash("deleted");
+    } catch (e: any) {
+      alert(`Failed to delete item: ${e?.message}`);
+    }
+    setPendingDelete(null);
+  }
+
+  async function handleAddCategory(categoryName: string) {
     const slug = slugify(categoryName);
-    const newCategory: MenuCategory = {
-      id: newId("cat"),
-      name: categoryName,
-      slug,
-      display_order: categories.length + 1,
-    };
-    const updatedCategories = [...categories, newCategory];
-    updateSlice("menu", { ...data.menu, categories: updatedCategories });
-    if (editing) {
-      setEditing({ ...editing, category_id: newCategory.id });
+    try {
+      const created = await menuService.createCategory({
+        name: categoryName,
+        slug,
+        display_order: categories.length + 1,
+      });
+      const newCategory: MenuCategory = created || {
+        id: newId("cat"),
+        name: categoryName,
+        slug,
+        display_order: categories.length + 1,
+      };
+      const updatedCategories = [...categories, newCategory];
+      updateSlice("menu", { ...data.menu, categories: updatedCategories });
+      if (editing) {
+        setEditing({ ...editing, category_id: newCategory.id });
+      }
+    } catch (e: any) {
+      alert(`Failed to create category: ${e?.message}`);
     }
   }
 
@@ -613,10 +652,8 @@ function ItemsManager() {
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           if (pendingDelete) {
-            commit(items.filter((i) => i.id !== pendingDelete.id));
-            flash("deleted");
+            handleDelete(pendingDelete);
           }
-          setPendingDelete(null);
         }}
       />
     </div>
@@ -643,31 +680,56 @@ function CategoriesManager() {
     setTimeout(() => setNotice(null), 2000);
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     const trimmed = newCatName.trim();
     if (!trimmed) return;
     const slug = trimmed.toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "");
-    const newCategory: MenuCategory = {
-      id: newId("cat"),
-      name: trimmed,
-      slug,
-      display_order: categories.length + 1,
-    };
-    commit([...categories, newCategory]);
-    setNewCatName("");
-    setIsAdding(false);
-    flash("saved");
+    try {
+      const created = await menuService.createCategory({
+        name: trimmed,
+        slug,
+        display_order: categories.length + 1,
+      });
+      const newCategory: MenuCategory = created || {
+        id: newId("cat"),
+        name: trimmed,
+        slug,
+        display_order: categories.length + 1,
+      };
+      commit([...categories, newCategory]);
+      setNewCatName("");
+      setIsAdding(false);
+      flash("saved");
+    } catch (e: any) {
+      alert(`Failed to create category: ${e?.message}`);
+    }
   }
 
-  function handleSaveEditing() {
+  async function handleSaveEditing() {
     if (!editing) return;
     const trimmed = editing.name.trim();
     if (!trimmed) return;
     const slug = trimmed.toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "");
     const updated = { ...editing, name: trimmed, slug };
-    commit(categories.map((c) => (c.id === updated.id ? updated : c)));
-    setEditing(null);
-    flash("saved");
+    try {
+      await menuService.updateCategory(editing.id, { name: trimmed, slug });
+      commit(categories.map((c) => (c.id === updated.id ? updated : c)));
+      setEditing(null);
+      flash("saved");
+    } catch (e: any) {
+      alert(`Failed to update category: ${e?.message}`);
+    }
+  }
+
+  async function handleDelete(cat: MenuCategory) {
+    try {
+      await menuService.deleteCategory(cat.id);
+      commit(categories.filter((c) => c.id !== cat.id));
+      flash("deleted");
+    } catch (e: any) {
+      alert(`Failed to delete category: ${e?.message}`);
+    }
+    setPendingDelete(null);
   }
 
   return (
@@ -799,10 +861,8 @@ function CategoriesManager() {
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           if (pendingDelete) {
-            commit(categories.filter((c) => c.id !== pendingDelete.id));
-            flash("deleted");
+            handleDelete(pendingDelete);
           }
-          setPendingDelete(null);
         }}
       />
     </div>

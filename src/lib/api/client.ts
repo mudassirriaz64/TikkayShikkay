@@ -83,9 +83,19 @@ async function safeFetch<T>(
   const isBrowser = typeof window !== 'undefined';
   const defaultCredentials: FetchCredentials = isBrowser ? 'include' : 'same-origin';
 
+  let token: string | null = null;
+  if (isBrowser) {
+    try {
+      token = localStorage.getItem('tikkay_access_token');
+    } catch {
+      /* ignore */
+    }
+  }
+
   const headers: Record<string, string> = {
     Accept: 'application/json',
     ...(body !== undefined && !(body instanceof FormData) && { 'Content-Type': 'application/json' }),
+    ...(token && { Authorization: `Bearer ${token}` }),
     ...(customHeaders as Record<string, string> | undefined),
   };
 

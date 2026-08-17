@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { galleryService } from "@/lib/api";
 
 type GalleryTabKey = "photos" | "kitchen" | "journey" | "social";
 
@@ -183,12 +184,19 @@ function KitchenManager() {
       pageData: { ...data.gallery.pageData, kitchen: next },
     });
   }
-  function save() {
+  async function save() {
     if (!editing) return;
-    commit(kitchen.map((k) => (k.id === editing.id ? editing : k)));
-    setEditing(null);
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+    try {
+      if (editing.id) {
+        await galleryService.kitchenProcesses.update(editing.id, editing);
+      }
+      commit(kitchen.map((k) => (k.id === editing.id ? editing : k)));
+      setEditing(null);
+      setNotice(true);
+      setTimeout(() => setNotice(false), 2000);
+    } catch (e: any) {
+      alert(`Failed to save kitchen process: ${e?.message}`);
+    }
   }
 
   return (
@@ -286,13 +294,23 @@ function JourneyManager() {
       pageData: { ...data.gallery.pageData, journey: next },
     });
   }
-  function save() {
+  async function save() {
     if (!editing) return;
-    const exists = journey.some((m) => m.id === editing.id);
-    commit(exists ? journey.map((m) => (m.id === editing.id ? editing : m)) : [...journey, editing]);
-    setEditing(null);
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+    const isEdit = journey.some((m) => m.id === editing.id && !m.id.startsWith("new"));
+    try {
+      if (isEdit) {
+        await galleryService.journeyMilestones.update(editing.id, editing);
+        commit(journey.map((m) => (m.id === editing.id ? editing : m)));
+      } else {
+        const created = await galleryService.journeyMilestones.create(editing);
+        commit([...journey, created || editing]);
+      }
+      setEditing(null);
+      setNotice(true);
+      setTimeout(() => setNotice(false), 2000);
+    } catch (e: any) {
+      alert(`Failed to save milestone: ${e?.message}`);
+    }
   }
 
   const typeTone: Record<JourneyType, "orange" | "gold" | "peach" | "neutral" | "red"> = {
