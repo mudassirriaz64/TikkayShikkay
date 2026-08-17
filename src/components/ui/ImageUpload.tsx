@@ -60,28 +60,52 @@ export function ImageUpload({
       )}
 
       {value ? (
-        <div className="relative group overflow-hidden rounded-xl border border-[var(--border-warm)] bg-[var(--bg-deep)]">
-          <img
-            src={value}
-            alt={label || "Uploaded preview"}
-            className="h-40 w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              className="px-3 py-1.5 rounded-lg bg-[var(--bg-surface)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:bg-[var(--accent-orange)] hover:text-white transition shadow-sm"
-            >
-              Change Image
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange("", undefined)}
-              className="p-1.5 rounded-lg bg-red-500/80 text-white hover:bg-red-600 transition shadow-sm"
-              title="Remove image"
-            >
-              <X className="h-4 w-4" />
-            </button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-2xl border border-[var(--border-warm)] bg-[var(--bg-deep)]/80 p-3.5 backdrop-blur-sm">
+          {/* Square/Landscape Thumbnail Card */}
+          <div className="relative group/thumb shrink-0 w-36 h-28 sm:w-44 sm:h-32 overflow-hidden rounded-xl border border-[var(--border-warm)] bg-black/40 shadow-inner">
+            <img
+              src={value}
+              alt={label || "Dish preview"}
+              className="h-full w-full object-cover object-center transition-transform duration-500 group-hover/thumb:scale-108"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+            <span className="absolute bottom-1.5 left-2 text-[9px] font-bold uppercase tracking-wider text-white/90 bg-black/50 px-1.5 py-0.5 rounded backdrop-blur-xs">
+              Live Preview
+            </span>
+          </div>
+
+          {/* Details & Actions */}
+          <div className="flex flex-1 flex-col justify-between self-stretch py-0.5 min-w-0">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  Image Ready
+                </p>
+              </div>
+              <p className="mt-1.5 text-xs text-[var(--text-faint)] truncate max-w-md font-mono">
+                {value}
+              </p>
+            </div>
+
+            <div className="mt-3 flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border-warm)] bg-[var(--bg-surface)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:border-[var(--accent-orange)] hover:text-[var(--accent-orange)] hover:bg-[var(--bg-surface-alt)] transition-all duration-200"
+              >
+                <UploadCloud className="h-3.5 w-3.5" />
+                Replace
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange("", undefined)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200"
+              >
+                <X className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            </div>
           </div>
         </div>
       ) : (
