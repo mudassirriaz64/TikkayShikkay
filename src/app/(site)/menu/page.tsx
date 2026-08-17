@@ -16,10 +16,8 @@ export const metadata = {
 export default async function MenuPage() {
   const menu = await getMenu();
 
-  const tikkaItems =
-    menu.tikka && menu.tikka.length > 0
-      ? menu.tikka
-      : menu.items.filter((i) => i.title.toLowerCase().includes("tikka"));
+  const categories = menu.categories || [];
+  const allItems = menu.items || [];
 
   return (
     <div className="bg-[var(--bg-base)]">
@@ -27,32 +25,58 @@ export default async function MenuPage() {
         <MenuHero />
         <CategoryTabs tabs={menu.tabs} />
 
-        {/* 1. Featured & Bestsellers (Cross-category top picks) */}
-        <FeaturedGrid
-          items={menu.featured}
-          id="featured-picks"
-          eyebrow="Chef's selection"
-          title="Featured & Bestsellers"
-          stepNumber="01 / 05"
-        />
+        {/* 1. Featured & Bestsellers (Always at the top) */}
+        {menu.featured && menu.featured.length > 0 && (
+          <FeaturedGrid
+            items={menu.featured}
+            id="featured-picks"
+            eyebrow="Chef's selection"
+            title="Featured & Bestsellers"
+            stepNumber="Featured"
+          />
+        )}
 
-        {/* 2. Authentic Tikka Specials (Strictly Tikka category) */}
-        <FeaturedGrid
-          items={tikkaItems}
-          id="tikka"
-          eyebrow="Ancestral charcoal grill"
-          title="Tikka Specials"
-          stepNumber="02 / 05"
-        />
+        {/* 2. Dynamically rendered Category Sections directly from MongoDB */}
+        {categories.map((category, index) => {
+          const categoryItems = allItems.filter(
+            (item) =>
+              item.category_id === category.id ||
+              (item as any).category_id?._id === category.id ||
+              item.slug?.includes(category.slug)
+          );
 
-        {/* 3. Boti & Kabab */}
-        <BotiSection data={menu.boti} />
+          // If it is the Boti category and custom boti layout exists
+          if (category.slug === "boti" && menu.boti?.featured) {
+            return <BotiSection key={category.id} data={menu.boti} />;
+          }
 
-        {/* 4. Build Your Own Platter */}
-        <BuildPlatter data={menu.platter} />
+          // If it is the Sides category
+          if (category.slug === "sides" && menu.sides?.length > 0) {
+            return <SidesSection key={category.id} items={menu.sides} />;
+          }
 
-        {/* 5. Sides & Artisan Dips */}
-        <SidesSection items={menu.sides} />
+          // If category has items, render a dynamic section grid
+          if (categoryItems.length > 0) {
+            const stepStr = String(index + 1).padStart(2, "0");
+            const totalStr = String(categories.length + 1).padStart(2, "0");
+
+            return (
+              <FeaturedGrid
+                key={category.id}
+                items={categoryItems}
+                id={category.slug || category.id}
+                eyebrow="Ancestral Fire-Grilled"
+                title={`${category.name} Specials`}
+                stepNumber={`${stepStr} / ${totalStr}`}
+              />
+            );
+          }
+
+          return null;
+        })}
+
+        {/* 3. Interactive Build Your Own Platter */}
+        {menu.platter && <BuildPlatter data={menu.platter} />}
       </MotionConfig>
     </div>
   );
