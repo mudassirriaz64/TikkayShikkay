@@ -23,7 +23,7 @@ export function SidesSection({ items }: SidesSectionProps) {
             </h2>
           </div>
           <span className="font-[family:var(--font-serif)] text-sm font-bold tracking-[0.2em] text-[var(--text-muted)]">
-            03 / 04
+            05 / 05
           </span>
         </Reveal>
 

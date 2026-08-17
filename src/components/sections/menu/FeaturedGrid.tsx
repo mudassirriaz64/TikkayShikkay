@@ -4,26 +4,38 @@ import { FeaturedItem } from "@/types/menu";
 
 interface FeaturedGridProps {
   items: FeaturedItem[];
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  stepNumber?: string;
 }
 
-export function FeaturedGrid({ items }: FeaturedGridProps) {
+export function FeaturedGrid({
+  items,
+  id = "featured-picks",
+  eyebrow = "Chef's selection",
+  title = "Featured & Bestsellers",
+  stepNumber = "01 / 05",
+}: FeaturedGridProps) {
+  if (!items || items.length === 0) return null;
+
   return (
     <section
-      id="tikka"
+      id={id}
       className="scroll-mt-[140px] bg-[var(--bg-base)] py-[88px] lg:py-[112px]"
     >
       <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
         <Reveal className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--accent-peach)]">
-              From the fire
+              {eyebrow}
             </span>
             <h2 className="mt-3 font-[family:var(--font-serif)] text-3xl font-bold uppercase tracking-tight text-[var(--text-primary)] md:text-5xl">
-              Tikka Specials
+              {title}
             </h2>
           </div>
           <span className="font-[family:var(--font-serif)] text-sm font-bold tracking-[0.2em] text-[var(--text-muted)]">
-            01 / 04
+            {stepNumber}
           </span>
         </Reveal>
 

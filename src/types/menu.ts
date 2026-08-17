@@ -65,6 +65,7 @@ export interface MenuPageData {
   items: MenuItem[];
   tabs: MenuTab[];
   featured: FeaturedItem[];
+  tikka?: MenuItem[];
   platter: PlatterData;
   boti: BotiData;
   sides: SideItem[];

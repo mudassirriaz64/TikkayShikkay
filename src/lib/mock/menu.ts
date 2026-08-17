@@ -71,10 +71,11 @@ export const mockMenuItems: MenuItem[] = [
 ];
 
 export const mockMenuTabs: MenuTab[] = [
-  { id: "tab-tikka", label: "Tikka", sectionId: "tikka" },
-  { id: "tab-boti", label: "Boti", sectionId: "boti" },
-  { id: "tab-platters", label: "Platters", sectionId: "platters" },
-  { id: "tab-sides", label: "Sides & Sauces", sectionId: "sides" },
+  { id: "tab-featured", label: "Featured Picks", sectionId: "featured-picks" },
+  { id: "tab-tikka", label: "Tikka Specials", sectionId: "tikka" },
+  { id: "tab-boti", label: "Boti & Kabab", sectionId: "boti" },
+  { id: "tab-platters", label: "Build Platter", sectionId: "platters" },
+  { id: "tab-sides", label: "Sides & Dips", sectionId: "sides" },
 ];
 
 export const mockFeaturedItems: FeaturedItem[] = [
