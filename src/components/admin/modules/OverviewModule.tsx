@@ -18,12 +18,7 @@ import {
   Star,
   UtensilsCrossed,
   Wallet,
-  TrendingUp,
-  Award,
-  Sparkles,
   RefreshCw,
-  Eye,
-  CheckCircle2,
 } from "lucide-react";
 
 const statusTone: Record<
@@ -46,7 +41,6 @@ export function OverviewModule({
   const [liveOrders, setLiveOrders] = useState<AccountOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // Fetch live orders from the backend
   const fetchLiveOrders = async () => {
     setLoadingOrders(true);
     try {
@@ -54,10 +48,10 @@ export function OverviewModule({
       if (orders && orders.length > 0) {
         setLiveOrders(orders);
       } else {
-        setLiveOrders(data.orders.orders);
+        setLiveOrders(data.orders.orders || []);
       }
     } catch {
-      setLiveOrders(data.orders.orders);
+      setLiveOrders(data.orders.orders || []);
     } finally {
       setLoadingOrders(false);
     }
@@ -67,7 +61,7 @@ export function OverviewModule({
     fetchLiveOrders();
   }, [data.orders.orders]);
 
-  const activeOrdersList = liveOrders.length > 0 ? liveOrders : data.orders.orders;
+  const activeOrdersList = liveOrders.length > 0 ? liveOrders : (data.orders.orders || []);
 
   const totalRevenue = activeOrdersList.reduce((sum, order) => sum + (order.total || 0), 0);
   const delivered = activeOrdersList.filter((o) => o.status === "delivered").length;
@@ -83,13 +77,12 @@ export function OverviewModule({
     )
     .slice(0, 6);
 
-  // Calculate Most Popular / Favorite Foods from order items
   const popularFoods = useMemo(() => {
-    const counts: Record<string, { count: number; revenue: number; image?: string }> = {};
+    const counts: Record<string, { count: number; revenue: number }> = {};
     activeOrdersList.forEach((order) => {
       order.items?.forEach((item) => {
         if (!counts[item.title]) {
-          counts[item.title] = { count: 0, revenue: 0, image: item.image_url };
+          counts[item.title] = { count: 0, revenue: 0 };
         }
         counts[item.title].count += item.quantity || 1;
         counts[item.title].revenue += (item.price || 0) * (item.quantity || 1);
@@ -107,25 +100,20 @@ export function OverviewModule({
         title: i.title,
         count: i.is_bestseller ? 38 : 19,
         revenue: i.price * (i.is_bestseller ? 38 : 19),
-        image: i.image_url,
       }));
     }
     return list.slice(0, 4);
   }, [activeOrdersList, data.menu.items]);
 
-  // Weekly Revenue Simulation / Trends Data for Interactive Bar Chart
-  const weeklyTrend = useMemo(() => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    return [
-      { day: "Mon", amount: 4850, orders: 4, height: "45%" },
-      { day: "Tue", amount: 6200, orders: 5, height: "60%" },
-      { day: "Wed", amount: 5400, orders: 4, height: "50%" },
-      { day: "Thu", amount: 7900, orders: 7, height: "75%" },
-      { day: "Fri", amount: 11400, orders: 11, height: "100%" },
-      { day: "Sat", amount: 10800, orders: 10, height: "95%" },
-      { day: "Sun", amount: 9200, orders: 9, height: "85%" },
-    ];
-  }, []);
+  const weeklyTrend = [
+    { day: "Mon", amount: 4850, height: "45%" },
+    { day: "Tue", amount: 6200, height: "60%" },
+    { day: "Wed", amount: 5400, height: "50%" },
+    { day: "Thu", amount: 7900, height: "75%" },
+    { day: "Fri", amount: 11400, height: "100%" },
+    { day: "Sat", amount: 10800, height: "95%" },
+    { day: "Sun", amount: 9200, height: "85%" },
+  ];
 
   const quickLinks = ADMIN_TABS.filter((tab) => tab.id !== "dashboard");
 
@@ -149,7 +137,7 @@ export function OverviewModule({
         </Button>
       </div>
 
-      {/* Top Metric Cards */}
+      {/* Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={UtensilsCrossed}
@@ -177,9 +165,9 @@ export function OverviewModule({
         />
       </div>
 
-      {/* Interactive Charts & Popular Foods Row */}
+      {/* Visual Analytics Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Weekly Revenue & Volume Chart */}
+        {/* Weekly Revenue Bar Chart */}
         <SectionCard
           title="Weekly Revenue & Order Traffic"
           description="Performance across the last 7 days"
@@ -222,7 +210,7 @@ export function OverviewModule({
           </div>
         </SectionCard>
 
-        {/* Favorite & Top Selling Dishes */}
+        {/* Favorite Dishes */}
         <SectionCard
           title="Top Favorite Dishes"
           description="Most ordered customer cravings"
