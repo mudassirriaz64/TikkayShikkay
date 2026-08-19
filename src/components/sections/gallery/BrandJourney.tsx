@@ -74,16 +74,23 @@ export function BrandJourney({ journey }: BrandJourneyProps) {
           />
 
           <div className="space-y-10">
-            {journey.map((milestone, index) => (
-              <Reveal key={milestone.id} delay={(index % 2) * 0.08}>
-                <div className="relative pl-10 md:pl-16">
-                  <span className="absolute left-0 top-6 flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[var(--accent-peach)]/50 bg-[var(--bg-surface-raised)]">
-                    <span className="h-2 w-2 rounded-full bg-[var(--accent-orange)]" />
-                  </span>
-                  <JourneyCard milestone={milestone} />
-                </div>
-              </Reveal>
-            ))}
+            {[...journey]
+              .sort((a, b) => {
+                const yearA = parseInt(a.year, 10) || 0;
+                const yearB = parseInt(b.year, 10) || 0;
+                if (yearA !== yearB) return yearA - yearB;
+                return (a.display_order ?? 0) - (b.display_order ?? 0);
+              })
+              .map((milestone, index) => (
+                <Reveal key={milestone.id} delay={(index % 2) * 0.08}>
+                  <div className="relative pl-10 md:pl-16">
+                    <span className="absolute left-0 top-6 flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[var(--accent-peach)]/50 bg-[var(--bg-surface-raised)]">
+                      <span className="h-2 w-2 rounded-full bg-[var(--accent-orange)]" />
+                    </span>
+                    <JourneyCard milestone={milestone} />
+                  </div>
+                </Reveal>
+              ))}
           </div>
         </div>
       </div>

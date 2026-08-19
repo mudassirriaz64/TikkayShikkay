@@ -1,10 +1,13 @@
 export interface JobListing {
   id: string;
+  _id?: string;
   title: string;
   department: string;
-  type: "Full-time" | "Part-time" | "Contract";
+  type: "Full-time" | "Part-time" | "Contract" | "Shift" | "Apprenticeship";
   location: string;
   description: string;
+  requirements?: string[];
+  is_active?: boolean;
   postedDate: string;
 }
 

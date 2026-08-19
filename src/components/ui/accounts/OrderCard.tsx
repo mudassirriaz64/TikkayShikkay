@@ -82,9 +82,9 @@ export function OrderCard({ order, menuItems, index }: OrderCardProps) {
 
           <div className="flex items-center gap-2">
             <div className="flex -space-x-2">
-              {order.items.slice(0, 4).map((item) => (
+              {order.items.slice(0, 4).map((item, idx) => (
                 <span
-                  key={`${order.id}-${item.itemId}`}
+                  key={`${order.id || (order as any)._id || index}-${item.itemId || item.title || idx}`}
                   className="relative h-9 w-9 overflow-hidden rounded-full border-2 border-[var(--bg-surface)]"
                 >
                   <Image
@@ -159,9 +159,9 @@ export function OrderCard({ order, menuItems, index }: OrderCardProps) {
           >
             <div className="flex flex-col gap-4 p-6">
               <ul className="flex flex-col gap-3">
-                {order.items.map((item) => (
+                {order.items.map((item, itemIdx) => (
                   <li
-                    key={`${order.id}-${item.itemId}`}
+                    key={`${order.id || (order as any)._id || index}-${item.itemId || item.title || itemIdx}`}
                     className="flex items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-3">

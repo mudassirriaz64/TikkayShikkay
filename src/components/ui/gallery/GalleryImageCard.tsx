@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { Clock, MapPin, Play } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { GalleryImage } from "@/types";
 
@@ -19,6 +19,7 @@ export function GalleryImageCard({
   onOpen,
 }: GalleryImageCardProps) {
   const parallaxRef = useParallax<HTMLDivElement>(0.08);
+  const isVideo = image.media_type === "video";
 
   return (
     <button
@@ -40,9 +41,27 @@ export function GalleryImageCard({
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100" />
 
+      {/* Top badges */}
+      {isVideo && image.duration ? (
+        <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[10px] font-bold tabular-nums text-[var(--text-primary)] backdrop-blur-sm">
+          <Clock className="h-3 w-3 text-[var(--accent-peach)]" aria-hidden="true" />
+          {image.duration}
+        </span>
+      ) : null}
+
       <span className="absolute right-4 top-4 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[10px] font-bold tabular-nums tracking-[0.12em] text-[var(--text-primary)] backdrop-blur-sm">
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
       </span>
+
+      {/* Video Center Play Button Overlay */}
+      {isVideo ? (
+        <span className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+          <span className="absolute h-14 w-14 animate-ping rounded-full bg-[var(--accent-orange)]/30" />
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-orange)] text-[var(--text-on-orange)] shadow-[0_0_24px_rgba(255,86,42,0.5)] transition-transform duration-300 group-hover:scale-110">
+            <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
+          </span>
+        </span>
+      ) : null}
 
       <div className="absolute inset-x-0 bottom-0 p-5">
         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent-gold)]">

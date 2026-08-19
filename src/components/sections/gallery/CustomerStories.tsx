@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { BadgeCheck } from "lucide-react";
@@ -65,23 +66,45 @@ function GoogleReviewCard({ review }: { review: GoogleReview }) {
 
 function MarqueeStrip({ posts }: { posts: InstagramPost[] }) {
   const reducedMotion = useReducedMotion();
-  const doubled = [...posts, ...posts];
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Duplicate items 4x to ensure a wide enough buffer for seamless infinite loop across all viewports
+  const repeated = [...posts, ...posts, ...posts, ...posts];
+
+  if (!posts || posts.length === 0) return null;
 
   return (
-    <div className="mt-16 overflow-hidden border-y border-[var(--border-warm)]/30 py-4">
+    <div
+      className="mt-20 overflow-hidden border-y border-[var(--border-warm)]/30 bg-[var(--bg-deep)]/40 py-5 backdrop-blur-xs select-none cursor-grab active:cursor-grabbing"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
       <motion.div
-        animate={reducedMotion ? undefined : { x: ["0%", "-50%"] }}
+        animate={
+          reducedMotion || isPaused
+            ? undefined
+            : { x: ["0%", "-50%"] }
+        }
         transition={
           reducedMotion
             ? undefined
-            : { duration: 45, ease: "linear", repeat: Infinity }
+            : {
+                duration: 35,
+                ease: "linear",
+                repeat: Infinity,
+              }
         }
-        className="flex w-max gap-4"
+        drag="x"
+        dragConstraints={{ left: -1000, right: 0 }}
+        dragElastic={0.05}
+        className="flex w-max gap-5"
       >
-        {doubled.map((post, index) => (
+        {repeated.map((post, index) => (
           <div
             key={`${post.id}-${index}`}
-            className="relative h-40 w-40 shrink-0 overflow-hidden rounded-xl border border-[var(--border-warm)]"
+            className="group relative h-40 w-40 shrink-0 overflow-hidden rounded-2xl border border-[var(--border-warm)] bg-[var(--bg-surface)] transition-all duration-300 hover:scale-105 hover:border-[var(--accent-orange)]/60 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
           >
             <Image
               src={post.imageUrl}
@@ -89,10 +112,10 @@ function MarqueeStrip({ posts }: { posts: InstagramPost[] }) {
               fill
               sizes="160px"
               loading="lazy"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-            <span className="absolute bottom-2 left-2 right-2 truncate text-[10px] font-bold text-[var(--text-primary)]">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
+            <span className="absolute bottom-2.5 left-2.5 right-2.5 truncate rounded-md bg-black/40 px-1.5 py-0.5 text-[10px] font-bold text-[var(--accent-peach)] backdrop-blur-xs">
               {post.tag}
             </span>
           </div>
@@ -130,40 +153,42 @@ export function CustomerStories({
           </p>
         </Reveal>
 
-        <SubHeading title="In Their Own Words" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {videos.map((video, index) => (
-            <Reveal key={video.id} delay={index * 0.08}>
-              <VideoCard video={video} />
-            </Reveal>
-          ))}
-        </div>
+        <div className="space-y-16 lg:space-y-24">
+          {/* From Our Feed */}
+          <div>
+            <SubHeading title="From Our Feed" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {instagram.map((post, index) => (
+                <Reveal key={post.id} delay={(index % 3) * 0.08}>
+                  <InstagramCard post={post} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
 
-        <SubHeading title="From Our Feed" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {instagram.map((post, index) => (
-            <Reveal key={post.id} delay={(index % 3) * 0.08}>
-              <InstagramCard post={post} />
-            </Reveal>
-          ))}
-        </div>
+          {/* Google Reviews */}
+          <div>
+            <SubHeading title="Google Reviews" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {googleReviews.map((review, index) => (
+                <Reveal key={review.id} delay={(index % 4) * 0.08} className="h-full">
+                  <GoogleReviewCard review={review} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
 
-        <SubHeading title="Google Reviews" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {googleReviews.map((review, index) => (
-            <Reveal key={review.id} delay={(index % 4) * 0.08} className="h-full">
-              <GoogleReviewCard review={review} />
-            </Reveal>
-          ))}
-        </div>
-
-        <SubHeading title="Repeat Customers" />
-        <div className="space-y-8">
-          {stories.map((story, index) => (
-            <Reveal key={story.id} delay={(index % 2) * 0.1}>
-              <StoryCard story={story} />
-            </Reveal>
-          ))}
+          {/* Repeat Customers */}
+          <div>
+            <SubHeading title="Repeat Customers" />
+            <div className="space-y-8">
+              {stories.map((story, index) => (
+                <Reveal key={story.id} delay={(index % 2) * 0.1}>
+                  <StoryCard story={story} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

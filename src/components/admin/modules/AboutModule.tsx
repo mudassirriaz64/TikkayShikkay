@@ -13,7 +13,7 @@ import { Check, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { aboutService } from "@/lib/api";
 
-type AboutTabKey = "founder" | "stats" | "journey" | "milestones";
+type AboutTabKey = "founder" | "stats" | "journey";
 
 const newId = (prefix: string) => `${prefix}-${Date.now()}`;
 
@@ -26,7 +26,7 @@ export function AboutModule() {
       <PageHeader
         eyebrow="Legacy Workspace"
         title="About"
-        description="The founder's story, brand statistics, journey posts and milestones that build trust."
+        description="The founder's story, brand statistics, and journey timeline posts that build trust."
       />
 
       <SubTabs
@@ -36,14 +36,12 @@ export function AboutModule() {
           { id: "founder", label: "Founder" },
           { id: "stats", label: "Stats", count: data.about.stats.length },
           { id: "journey", label: "Journey Posts", count: data.about.journeyPosts.length },
-          { id: "milestones", label: "Milestones", count: data.about.milestones.length },
         ]}
       />
 
       {tab === "founder" && <FounderManager />}
       {tab === "stats" && <StatsManager />}
       {tab === "journey" && <JourneyPostsManager />}
-      {tab === "milestones" && <MilestonesManager />}
     </div>
   );
 }
@@ -51,12 +49,17 @@ export function AboutModule() {
 function FounderManager() {
   const { data, updateSlice } = useAdminData();
   const [draft, setDraft] = useState<FounderDetails>(data.about.founder);
-  const [notice, setNotice] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  function save() {
-    updateSlice("about", { ...data.about, founder: draft });
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+  async function save() {
+    try {
+      await aboutService.updateFounder(draft);
+      updateSlice("about", { ...data.about, founder: draft });
+      setNotice("Founder profile saved and updated!");
+      setTimeout(() => setNotice(null), 3000);
+    } catch (e: any) {
+      alert(`Failed to save founder: ${e?.message}`);
+    }
   }
 
   const set = <K extends keyof FounderDetails>(key: K, val: FounderDetails[K]) =>
@@ -64,7 +67,7 @@ function FounderManager() {
 
   return (
     <div className="space-y-5">
-      {notice ? <Notice tone="success">Founder details saved.</Notice> : null}
+      {notice ? <Notice tone="success">{notice}</Notice> : null}
 
       <SectionCard
         title="Founder Profile"
@@ -132,13 +135,18 @@ function FounderManager() {
 function StatsManager() {
   const { data, updateSlice } = useAdminData();
   const [draft, setDraft] = useState<StatItem[]>(data.about.stats);
-  const [notice, setNotice] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
-  function save() {
-    updateSlice("about", { ...data.about, stats: draft });
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+  async function save() {
+    try {
+      await aboutService.saveStats(draft);
+      updateSlice("about", { ...data.about, stats: draft });
+      setNotice("Brand statistics saved and updated!");
+      setTimeout(() => setNotice(null), 3000);
+    } catch (e: any) {
+      alert(`Failed to save statistics: ${e?.message}`);
+    }
   }
   function patch(index: number, patch: Partial<StatItem>) {
     setDraft(draft.map((s, i) => (i === index ? { ...s, ...patch } : s)));
@@ -146,7 +154,7 @@ function StatsManager() {
 
   return (
     <div className="space-y-5">
-      {notice ? <Notice tone="success">Statistics saved.</Notice> : null}
+      {notice ? <Notice tone="success">{notice}</Notice> : null}
 
       <SectionCard
         title="Brand Statistics"
@@ -210,7 +218,8 @@ function StatsManager() {
 function JourneyPostsManager() {
   const { data, updateSlice } = useAdminData();
   const [editing, setEditing] = useState<JourneyPost | null>(null);
-  const [notice, setNotice] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<JourneyPost | null>(null);
 
   const posts = data.about.journeyPosts;
 
@@ -218,28 +227,55 @@ function JourneyPostsManager() {
     updateSlice("about", { ...data.about, journeyPosts: next });
   }
 
+  function flash(msg: string) {
+    setNotice(msg);
+    setTimeout(() => setNotice(null), 3000);
+  }
+
   async function save() {
     if (!editing) return;
-    const isEdit = posts.some((p) => p.id === editing.id && !p.id.startsWith("post"));
+    if (!editing.title.trim() || !editing.content.trim()) {
+      alert("Please enter a title and content for the journey post");
+      return;
+    }
+
     try {
-      if (isEdit) {
+      const isExisting = posts.some((p) => p.id === editing.id && !editing.id.startsWith("journey-new-") && !editing.id.startsWith("journey-"));
+      if (isExisting) {
         await aboutService.updateJourneyPost(editing.id, editing);
         commit(posts.map((p) => (p.id === editing.id ? editing : p)));
+        flash("Journey post updated!");
       } else {
-        const created = await aboutService.createJourneyPost(editing);
+        const { id, ...createPayload } = editing;
+        const created = await aboutService.createJourneyPost({
+          ...createPayload,
+          display_order: posts.length + 1,
+        });
         commit([...posts, created || editing]);
+        flash("Journey post added!");
       }
       setEditing(null);
-      setNotice(true);
-      setTimeout(() => setNotice(false), 2000);
     } catch (e: any) {
       alert(`Failed to save journey post: ${e?.message}`);
     }
   }
 
+  async function handleDelete(post: JourneyPost) {
+    try {
+      if (post.id) {
+        await aboutService.deleteJourneyPost(post.id);
+      }
+      commit(posts.filter((p) => p.id !== post.id));
+      flash("Journey post removed.");
+    } catch (e: any) {
+      alert(`Failed to delete journey post: ${e?.message}`);
+    }
+    setPendingDelete(null);
+  }
+
   return (
     <div className="space-y-5">
-      {notice ? <Notice tone="success">Journey post saved.</Notice> : null}
+      {notice ? <Notice tone="success">{notice}</Notice> : null}
 
       {editing ? (
         <SectionCard
@@ -336,11 +372,30 @@ function JourneyPostsManager() {
                 <Button size="sm" variant="outline" onClick={() => setEditing({ ...post })}>
                   <ChevronRight className="h-3.5 w-3.5" /> Edit
                 </Button>
+                <Button size="sm" variant="ghost" onClick={() => setPendingDelete(post)}>
+                  <Trash2 className="h-3.5 w-3.5 text-[var(--accent-coral)]" />
+                </Button>
               </div>
             </li>
           ))}
         </ul>
       </SectionCard>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete journey post?"
+        description={
+          pendingDelete
+            ? `Day ${pendingDelete.day_number} ("${pendingDelete.title}") will be removed from the About page timeline. This cannot be undone.`
+            : undefined
+        }
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete) {
+            handleDelete(pendingDelete);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -348,13 +403,18 @@ function JourneyPostsManager() {
 function MilestonesManager() {
   const { data, updateSlice } = useAdminData();
   const [draft, setDraft] = useState<MilestoneStat[]>(data.about.milestones);
-  const [notice, setNotice] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
-  function save() {
-    updateSlice("about", { ...data.about, milestones: draft });
-    setNotice(true);
-    setTimeout(() => setNotice(false), 2000);
+  async function save() {
+    try {
+      await aboutService.saveMilestones(draft);
+      updateSlice("about", { ...data.about, milestones: draft });
+      setNotice("Milestones saved and updated!");
+      setTimeout(() => setNotice(null), 3000);
+    } catch (e: any) {
+      alert(`Failed to save milestones: ${e?.message}`);
+    }
   }
   function patch(index: number, patch: Partial<MilestoneStat>) {
     setDraft(draft.map((m, i) => (i === index ? { ...m, ...patch } : m)));
@@ -362,7 +422,7 @@ function MilestonesManager() {
 
   return (
     <div className="space-y-5">
-      {notice ? <Notice tone="success">Milestones saved.</Notice> : null}
+      {notice ? <Notice tone="success">{notice}</Notice> : null}
 
       <SectionCard
         title="Company Milestones"

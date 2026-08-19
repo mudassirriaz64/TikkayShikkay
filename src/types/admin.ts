@@ -4,6 +4,17 @@ export type AdminTabId =
   | "menu"
   | "reviews"
   | "gallery"
+  | "gallery-customers"
+  | "gallery-kitchen"
+  | "gallery-journey"
+  | "gallery-media"
+  | "social"
   | "about"
   | "contact"
-  | "orders";
+  | "contact-messages"
+  | "orders"
+  | "customers"
+  | "catering"
+  | "blog"
+  | "careers"
+  | "franchise";

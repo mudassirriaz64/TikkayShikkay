@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { MessageCircle, ShoppingCart } from "lucide-react";
+import { MessageCircle, ShoppingBag } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/formatCurrency";
 import { useCart } from "@/context/CartContext";
 
@@ -42,10 +43,12 @@ export function StickyOrderBar({ whatsapp }: StickyOrderBarProps) {
           <MessageCircle className="w-5 h-5" />
           <span className="sr-only">WhatsApp</span>
         </a>
-        <Button variant="primary" className="h-11 px-5 rounded-xl flex gap-2">
-          <ShoppingCart className="w-4 h-4" />
-          <span>Cart</span>
-        </Button>
+        <Link href="/checkout">
+          <Button variant="primary" className="h-11 px-5 rounded-xl flex items-center gap-2 shadow-lg">
+            <ShoppingBag className="w-4 h-4" />
+            <span>Checkout</span>
+          </Button>
+        </Link>
       </div>
     </div>
   );

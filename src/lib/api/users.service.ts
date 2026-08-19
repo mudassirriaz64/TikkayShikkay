@@ -50,4 +50,23 @@ export const usersService = {
   delete(id: string): Promise<void> {
     return api.delete<void>(`/users/${id}`);
   },
+
+  joinLoyalty(data: { birthday?: string; whatsapp_opt_in?: boolean }): Promise<{ user: AuthUser; whatsapp_community_url: string }> {
+    return api.post<{ user: AuthUser; whatsapp_community_url: string }>('/users/loyalty/join', data);
+  },
+
+  getLoyaltyStatus(): Promise<{
+    is_loyalty_member: boolean;
+    loyalty_points: number;
+    loyalty_joined_at?: string;
+    birthday?: string;
+    whatsapp_opt_in?: boolean;
+    whatsapp_community_url: string;
+  }> {
+    return api.get('/users/loyalty/status');
+  },
+
+  getLoyaltyCount(): Promise<{ count: number; rawCount: number }> {
+    return api.get<{ count: number; rawCount: number }>('/users/loyalty/count');
+  },
 };

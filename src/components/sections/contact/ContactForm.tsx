@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CheckCircle2, Clock, Send } from "lucide-react";
+import { CheckCircle2, Clock, Send, AlertCircle, MessageCircle, Loader2 } from "lucide-react";
 import { ContactInput } from "@/components/ui/contact/ContactInput";
 import { ContactButton } from "@/components/ui/contact/ContactButton";
 import { Reveal } from "@/components/motion/Reveal";
 import { ContactFormData } from "@/types/contact";
+import { contactService } from "@/lib/api";
 
 interface ContactFormValues {
   name: string;
@@ -63,6 +64,8 @@ function validate(values: ContactFormValues): ContactFormErrors {
 export function ContactForm({ data }: { data: ContactFormData }) {
   const [values, setValues] = useState<ContactFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<ContactFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const setField =
@@ -71,14 +74,38 @@ export function ContactForm({ data }: { data: ContactFormData }) {
       if (errors[field]) {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
       }
+      if (submitError) {
+        setSubmitError(null);
+      }
     };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const nextErrors = validate(values);
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length === 0) {
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await contactService.submitForm({
+        name: values.name.trim(),
+        phone: values.phone.trim(),
+        email: values.email.trim(),
+        subject: values.subject.trim(),
+        message: values.message.trim(),
+      });
       setSubmitted(true);
+    } catch (err: any) {
+      console.error("[ContactForm] Submit error:", err);
+      setSubmitError(
+        err?.message || "Something went wrong sending your message. Please try again or reach us directly on WhatsApp."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -209,6 +236,25 @@ export function ContactForm({ data }: { data: ContactFormData }) {
                 textarea
                 rows={5}
               />
+              {submitError ? (
+                <div className="flex items-start gap-3 rounded-2xl border border-[var(--accent-coral)]/40 bg-[var(--accent-coral)]/10 p-4 text-left">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--accent-coral)]" />
+                  <div className="flex-1 text-xs leading-relaxed text-[var(--text-primary)]">
+                    <p className="font-bold text-[var(--accent-coral)]">Submission Failed</p>
+                    <p className="mt-1">{submitError}</p>
+                    <a
+                      href="https://wa.me/923001234567"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 font-bold text-[var(--whatsapp-green)] hover:underline"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Chat with Pitmaster on WhatsApp instead
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="mt-1 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-[var(--text-muted)]">
                   <span aria-hidden="true" className="text-[var(--accent-ember)]">
@@ -216,9 +262,18 @@ export function ContactForm({ data }: { data: ContactFormData }) {
                   </span>{" "}
                   Required fields — we reply within 2 hours.
                 </p>
-                <ContactButton showArrow={false}>
-                  <Send className="h-4 w-4" aria-hidden="true" />
-                  Send Message
+                <ContactButton showArrow={false} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" aria-hidden="true" />
+                      Send Message
+                    </>
+                  )}
                 </ContactButton>
               </div>
             </form>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { MenuItem } from "@/types";
 import {
   ordersService,
@@ -50,9 +50,48 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [orderStatus, setOrderStatus] =
     useState<"idle" | "placing" | "placed" | "error">("idle");
   const [lastOrderError, setLastOrderError] = useState<string | null>(null);
+
+  // Hydrate cart from localStorage on client mount
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("tikkay_cart_items");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          // Validate structure of stored cart items
+          const validItems = parsed.filter(
+            (entry: any) =>
+              entry &&
+              entry.item &&
+              typeof entry.item.id === "string" &&
+              typeof entry.item.title === "string" &&
+              typeof entry.item.price === "number" &&
+              typeof entry.quantity === "number" &&
+              entry.quantity > 0
+          );
+          setItems(validItems);
+        }
+      }
+    } catch {
+      // ignore localStorage errors
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Sync cart items to localStorage whenever they change
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      window.localStorage.setItem("tikkay_cart_items", JSON.stringify(items));
+    } catch {
+      // ignore storage errors
+    }
+  }, [items, isHydrated]);
 
   const addToCart = useCallback((item: MenuItem) => {
     setItems((prev) => {
@@ -102,7 +141,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => {
+    setItems([]);
+    try {
+      window.localStorage.removeItem("tikkay_cart_items");
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const cartItemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const cartSubtotal = items.reduce(
@@ -136,6 +182,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           quantity: cart.quantity,
           price: cart.item.price,
           image_url: cart.item.image_url,
+          breakdown: cart.item.description?.startsWith("Included: ")
+            ? cart.item.description
+            : undefined,
         }));
 
         const subtotal = Number(cartSubtotal.toFixed(2));
@@ -159,7 +208,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const order = await ordersService.create(payload);
         setOrderStatus("placed");
         clearCart();
-        setTimeout(() => setOrderStatus("idle"), 3000);
         return { success: true, order };
       } catch (err) {
         const msg =

@@ -10,10 +10,10 @@ export function SidesSection({ items }: SidesSectionProps) {
   return (
     <section
       id="sides"
-      className="scroll-mt-[140px] bg-[var(--bg-deep)] py-[88px] lg:py-[112px]"
+      className="scroll-mt-[140px] bg-[var(--bg-deep)] py-10 lg:py-14"
     >
       <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
-        <Reveal className="mb-12 flex flex-wrap items-end justify-between gap-4">
+        <Reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--accent-peach)]">
               The supporting cast

@@ -38,6 +38,10 @@ export const aboutService = {
     return api.get<StatItem[]>('/about/stats');
   },
 
+  saveStats(stats: StatItem[]): Promise<StatItem[]> {
+    return api.put<StatItem[]>('/about/stats', stats);
+  },
+
   createStat(data: Partial<StatItem>): Promise<StatItem> {
     return api.post<StatItem>('/about/stats', data);
   },
@@ -56,6 +60,10 @@ export const aboutService = {
 
   getMilestones(): Promise<MilestoneStat[]> {
     return api.get<MilestoneStat[]>('/about/milestones');
+  },
+
+  saveMilestones(milestones: MilestoneStat[]): Promise<MilestoneStat[]> {
+    return api.put<MilestoneStat[]>('/about/milestones', milestones);
   },
 
   createMilestone(data: Partial<MilestoneStat>): Promise<MilestoneStat> {

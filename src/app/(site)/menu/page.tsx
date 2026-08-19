@@ -3,9 +3,8 @@ import { getMenu } from "@/lib/data/getMenu";
 import { MenuHero } from "@/components/sections/menu/MenuHero";
 import { CategoryTabs } from "@/components/sections/menu/CategoryTabs";
 import { FeaturedGrid } from "@/components/sections/menu/FeaturedGrid";
-import { BuildPlatter } from "@/components/sections/menu/BuildPlatter";
-import { BotiSection } from "@/components/sections/menu/BotiSection";
-import { SidesSection } from "@/components/sections/menu/SidesSection";
+import { PlattersSection } from "@/components/sections/menu/PlattersSection";
+import { CateringMenuBanner } from "@/components/sections/menu/CateringMenuBanner";
 
 export const metadata = {
   title: "Menu - Tikkay Shikkay",
@@ -24,6 +23,7 @@ export default async function MenuPage() {
       <MotionConfig reducedMotion="user">
         <MenuHero />
         <CategoryTabs tabs={menu.tabs} />
+        <CateringMenuBanner />
 
         {/* 1. Featured & Bestsellers (Always at the top) */}
         {menu.featured && menu.featured.length > 0 && (
@@ -45,29 +45,34 @@ export default async function MenuPage() {
               item.slug?.includes(category.slug)
           );
 
-          // If it is the Boti category and custom boti layout exists
-          if (category.slug === "boti" && menu.boti?.featured) {
-            return <BotiSection key={category.id} data={menu.boti} />;
+          const stepStr = String(index + 1).padStart(2, "0");
+          const totalStr = String(categories.length).padStart(2, "0");
+          const counter = `${stepStr} / ${totalStr}`;
+
+          // If it is the Platters category, render Unified Platters Section
+          if (category.slug === "platters" || category.name.toLowerCase().includes("platter")) {
+            return (
+              <PlattersSection
+                key={category.id}
+                curatedItems={categoryItems}
+                categories={categories}
+                allItems={allItems}
+                platterData={menu.platter}
+                stepNumber={counter}
+              />
+            );
           }
 
-          // If it is the Sides category
-          if (category.slug === "sides" && menu.sides?.length > 0) {
-            return <SidesSection key={category.id} items={menu.sides} />;
-          }
-
-          // If category has items, render a dynamic section grid
+          // Render dynamic section grid for all categories (Tikka, Boti, Sides, Drinks, Kebabs, + any new ones)
           if (categoryItems.length > 0) {
-            const stepStr = String(index + 1).padStart(2, "0");
-            const totalStr = String(categories.length + 1).padStart(2, "0");
-
             return (
               <FeaturedGrid
                 key={category.id}
                 items={categoryItems}
                 id={category.slug || category.id}
-                eyebrow="Ancestral Fire-Grilled"
+                eyebrow={category.subtitle || "Ancestral Fire-Grilled"}
                 title={`${category.name} Specials`}
-                stepNumber={`${stepStr} / ${totalStr}`}
+                stepNumber={counter}
               />
             );
           }
@@ -75,8 +80,17 @@ export default async function MenuPage() {
           return null;
         })}
 
-        {/* 3. Interactive Build Your Own Platter */}
-        {menu.platter && <BuildPlatter data={menu.platter} />}
+        {/* 3. Fallback PlattersSection if platters category was not in category list */}
+        {!categories.some((c) => c.slug === "platters" || c.name.toLowerCase().includes("platter")) &&
+          menu.platter && (
+            <PlattersSection
+              curatedItems={allItems.filter((item) => item.category_id === "platters" || item.slug?.includes("platter"))}
+              categories={categories}
+              allItems={allItems}
+              platterData={menu.platter}
+              stepNumber="Platters"
+            />
+          )}
       </MotionConfig>
     </div>
   );

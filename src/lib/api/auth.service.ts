@@ -21,6 +21,11 @@ export interface AuthUser {
   phone?: string;
   address?: string;
   role: 'user' | 'admin';
+  is_loyalty_member?: boolean;
+  loyalty_joined_at?: string;
+  loyalty_points?: number;
+  birthday?: string;
+  whatsapp_opt_in?: boolean;
   createdAt?: string;
   updatedAt?: string;
   memberSince?: string;

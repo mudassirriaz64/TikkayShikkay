@@ -37,6 +37,10 @@ export const contactService = {
     return api.get<ContactMethod[]>('/contact/methods');
   },
 
+  saveMethods(methods: ContactMethod[]): Promise<ContactMethod[]> {
+    return api.put<ContactMethod[]>('/contact/methods', methods);
+  },
+
   createMethod(data: Partial<ContactMethod>): Promise<ContactMethod> {
     return api.post<ContactMethod>('/contact/methods', data);
   },
@@ -55,6 +59,10 @@ export const contactService = {
 
   getOpeningHours(): Promise<OpeningDay[]> {
     return api.get<OpeningDay[]>('/contact/opening-hours');
+  },
+
+  saveOpeningHours(openingHours: OpeningDay[]): Promise<OpeningDay[]> {
+    return api.put<OpeningDay[]>('/contact/opening-hours', openingHours);
   },
 
   createOpeningDay(data: Partial<OpeningDay>): Promise<OpeningDay> {

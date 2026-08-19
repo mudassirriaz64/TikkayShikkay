@@ -2,6 +2,7 @@ export interface MenuCategory {
   id: string;
   name: string;
   slug: string;
+  subtitle?: string;
   display_order: number;
 }
 
@@ -19,9 +20,13 @@ export interface MenuItem {
   is_available: boolean;
   image_url: string;
   image_public_id?: string;
+  ribbon?: MenuRibbon;
+  tags?: string[];
+  servings?: number;
+  included_items?: string[];
 }
 
-export type MenuRibbon = "Legendary" | "Chef's Choice";
+export type MenuRibbon = string;
 
 export interface MenuTab {
   id: string;

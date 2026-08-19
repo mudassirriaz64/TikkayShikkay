@@ -40,7 +40,7 @@ export function FavoriteCard({ item, className }: FavoriteCardProps) {
         type="button"
         onClick={() => toggleFavorite(item.id)}
         aria-pressed={favorite}
-        aria-label={favorite ? "Remove from favorites" : "Save to favorites"}
+        aria-label={favorite ? "Remove from favourites" : "Save to favourites"}
         className={cn(
           "relative z-10 ml-auto flex h-10 w-10 items-center justify-center rounded-xl border backdrop-blur-md transition-all active:scale-95",
           favorite

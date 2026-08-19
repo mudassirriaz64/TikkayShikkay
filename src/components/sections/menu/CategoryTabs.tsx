@@ -52,14 +52,16 @@ export function CategoryTabs({ tabs }: CategoryTabsProps) {
     >
       <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
         <div className="scrollbar-hide -mx-4 flex gap-3 overflow-x-auto px-4 py-4 lg:mx-0 lg:px-0 lg:justify-center lg:py-5">
-          {tabs.map((tab) => (
-            <CategoryButton
-              key={tab.id}
-              label={tab.label}
-              active={activeId === tab.sectionId}
-              onClick={() => scrollToSection(tab.sectionId)}
-            />
-          ))}
+          {tabs
+            .filter((tab, idx, arr) => arr.findIndex((t) => t.id === tab.id || t.sectionId === tab.sectionId) === idx)
+            .map((tab) => (
+              <CategoryButton
+                key={tab.id}
+                label={tab.label}
+                active={activeId === tab.sectionId}
+                onClick={() => scrollToSection(tab.sectionId)}
+              />
+            ))}
         </div>
       </div>
     </nav>

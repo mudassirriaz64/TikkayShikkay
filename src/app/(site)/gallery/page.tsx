@@ -10,6 +10,8 @@ export const metadata = {
     "Step inside Tikkay Shikkay - customer stories, behind the scenes, the journey of Pakistan's first BBQ brand, and a gallery of every memory made at the coals.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryPage() {
   const data = await getGalleryPageData();
 

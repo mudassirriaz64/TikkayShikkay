@@ -28,22 +28,33 @@ export interface GalleryCategoryFilter {
 
 export interface GalleryImage {
   id: string;
+  media_type?: 'image' | 'video';
   imageUrl: string;
   image_public_id?: string;
+  video_url?: string;
+  video_public_id?: string;
+  duration?: string;
   caption: string;
   location: string;
   category: GalleryCategoryId;
   alt: string;
   tag?: string;
+  display_order?: number;
 }
 
 export interface VideoTestimonial {
   id: string;
   customer_name: string;
   title: string;
+  description?: string;
   duration: string;
   thumbnail: string;
+  video_url?: string;
+  video_public_id?: string;
   source: string;
+  source_type?: 'embed' | 'upload';
+  status?: 'ready' | 'processing' | 'failed';
+  display_order?: number;
 }
 
 export interface InstagramPost {
@@ -54,6 +65,7 @@ export interface InstagramPost {
   tag: string;
   likes: number;
   comments: number;
+  display_order?: number;
 }
 
 export interface GoogleReview {
@@ -64,6 +76,7 @@ export interface GoogleReview {
   review_text: string;
   verified: boolean;
   source: string;
+  display_order?: number;
 }
 
 export interface CustomerVisit {
@@ -82,6 +95,7 @@ export interface CustomerStory {
   visits: number;
   quote: string;
   timeline: CustomerVisit[];
+  display_order?: number;
 }
 
 export interface KitchenProcess {
@@ -90,9 +104,17 @@ export interface KitchenProcess {
   title: string;
   imageUrl: string;
   image_public_id?: string;
+  video_url?: string;
+  video_public_id?: string;
+  temperature?: string;
+  technique_tags?: string[];
+  ingredients_highlight?: string;
+  chef_secret?: string;
+  is_featured?: boolean;
   story: string;
   fact: string;
   time: string;
+  display_order?: number;
 }
 
 export type JourneyType =
@@ -112,6 +134,7 @@ export interface JourneyMilestone {
   badge: string;
   type: JourneyType;
   stat?: { value: number; suffix: string; label: string };
+  display_order?: number;
 }
 
 export interface GalleryHeroData {

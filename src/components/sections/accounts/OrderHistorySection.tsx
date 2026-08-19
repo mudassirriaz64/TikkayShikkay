@@ -36,11 +36,14 @@ export function OrderHistorySection({
           />
         ) : (
           <div className="flex flex-col gap-6">
-            {orders.map((order, index) => (
-              <Reveal key={order.id} delay={index * 0.06}>
-                <OrderCard order={order} menuItems={menuItems} index={index} />
-              </Reveal>
-            ))}
+            {orders.map((order, index) => {
+              const key = order.id || (order as any)._id || `order-${index}`;
+              return (
+                <Reveal key={key} delay={index * 0.06}>
+                  <OrderCard order={order} menuItems={menuItems} index={index} />
+                </Reveal>
+              );
+            })}
           </div>
         )}
       </div>

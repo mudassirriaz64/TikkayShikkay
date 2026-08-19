@@ -1,17 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { JobListing } from "@/types";
-import { MapPin, Clock, Briefcase } from "lucide-react";
+import { MapPin, Clock, Sparkles } from "lucide-react";
+import { JobApplicationModal } from "./JobApplicationModal";
 
 interface JobListingsProps {
   jobs: JobListing[];
 }
 
 export function JobListings({ jobs }: JobListingsProps) {
+  const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleApply = (job: JobListing) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
+
   return (
     <section className="bg-[var(--bg-base)] py-[88px] lg:py-[112px]">
       <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
@@ -57,9 +67,11 @@ export function JobListings({ jobs }: JobListingsProps) {
                   <Button
                     variant="primary"
                     size="sm"
-                    className="ml-auto rounded-xl"
+                    onClick={() => handleApply(job)}
+                    className="ml-auto rounded-xl flex items-center gap-1.5 text-xs font-bold uppercase"
                   >
-                    Apply
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Apply Now
                   </Button>
                 </div>
               </Card>
@@ -67,6 +79,15 @@ export function JobListings({ jobs }: JobListingsProps) {
           ))}
         </div>
       </div>
+
+      <JobApplicationModal
+        job={selectedJob}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedJob(null);
+        }}
+      />
     </section>
   );
 }

@@ -112,12 +112,12 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
       </button>
 
       <figure
-        className="max-h-full"
+        className="relative flex flex-col items-center justify-center max-w-full max-h-full"
         onClick={(event) => event.stopPropagation()}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="relative mx-auto flex max-h-[72vh] min-h-[320px] w-auto max-w-[min(92vw,1100px)] items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-warm)]">
+        <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-warm)] bg-black/60 shadow-2xl">
           <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.div
               key={image.id}
@@ -127,15 +127,29 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
               animate="center"
               exit="exit"
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative aspect-[4/5] h-full max-h-[72vh] w-auto"
+              className="relative flex items-center justify-center min-w-[280px] sm:min-w-[400px] max-w-[min(92vw,1000px)] h-[55vh] sm:h-[68vh]"
             >
-              <Image
-                src={image.imageUrl}
-                alt={image.alt}
-                fill
-                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 80vw, 60vw"
-                className="object-contain"
-              />
+              {image.media_type === "video" && image.video_url ? (
+                <video
+                  src={image.video_url}
+                  poster={image.imageUrl}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="h-full w-full max-h-[68vh] rounded-xl object-contain shadow-2xl"
+                />
+              ) : (
+                <div className="relative h-full w-full">
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.alt || image.caption}
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 85vw, 1000px"
+                    className="object-contain"
+                  />
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

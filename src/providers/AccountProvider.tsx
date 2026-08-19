@@ -53,6 +53,11 @@ function backendUserToProfile(user: AuthUser): UserProfile {
       (user as AuthUser & { createdAt?: string; memberSince?: string }).createdAt ||
       (user as AuthUser & { createdAt?: string; memberSince?: string }).memberSince ||
       new Date().toISOString().slice(0, 10),
+    is_loyalty_member: user.is_loyalty_member,
+    loyalty_joined_at: user.loyalty_joined_at,
+    loyalty_points: user.loyalty_points || 0,
+    birthday: user.birthday || "",
+    whatsapp_opt_in: user.whatsapp_opt_in,
   };
 }
 

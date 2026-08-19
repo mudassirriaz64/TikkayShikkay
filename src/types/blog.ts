@@ -9,6 +9,8 @@ export interface BlogPost {
   imageUrl: string;
   category: string;
   readTime: string;
+  tags?: string[];
+  is_published?: boolean;
 }
 
 export interface BlogPageData {

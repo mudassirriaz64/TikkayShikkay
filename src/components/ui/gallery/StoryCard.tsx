@@ -10,9 +10,9 @@ interface StoryCardProps {
 export function StoryCard({ story }: StoryCardProps) {
   return (
     <article className="group grid grid-cols-1 overflow-hidden rounded-[28px] border border-[var(--border-warm)] bg-[var(--bg-surface)] lg:grid-cols-[0.85fr_1.15fr]">
-      <div className="relative aspect-[4/5] w-full overflow-hidden lg:aspect-auto lg:h-full">
+      <div className="relative min-h-[320px] aspect-[4/5] w-full overflow-hidden lg:aspect-auto lg:min-h-[420px] lg:h-full">
         <Image
-          src={story.imageUrl}
+          src={story.imageUrl || "/images/gallery/customer-1.jpg"}
           alt={story.customer_name}
           fill
           sizes="(max-width: 1024px) 100vw, 40vw"

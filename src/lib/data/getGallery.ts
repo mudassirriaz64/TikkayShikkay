@@ -39,7 +39,16 @@ export async function getGalleryPageData(): Promise<GalleryPageData> {
 
 export async function getGalleryItems(): Promise<any[]> {
   return tryOrFallback(
-    () => galleryService.images.getAll() as any,
+    async () => {
+      const images = await galleryService.images.getAll();
+      if (!images || images.length === 0) return mockGalleryItems;
+      return images.map((img: any) => ({
+        id: img.id || img._id,
+        url: img.imageUrl || img.url || '/images/gallery/default-kitchen.jpg',
+        alt: img.alt || img.caption || 'Tikkay Shikkay Grill',
+        tag: img.tag || img.category || 'Kitchen',
+      }));
+    },
     mockGalleryItems as any,
   );
 }

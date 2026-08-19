@@ -30,50 +30,54 @@ export function ProcessGallery({ items }: { items: GalleryItem[] }) {
         {/* Asymmetric Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column - Tall Image */}
-          <Reveal className="h-full">
-            <div className="group relative aspect-[3/4] w-full overflow-hidden bg-[var(--bg-surface)] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.35)] border border-[var(--border-warm)]/60">
-              <Image
-                src={items[0].url}
-                alt={items[0].alt}
-                fill
-                sizes="(max-width: 768px) 100vw, 580px"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              {/* Hover overlay with peach tag pill */}
-              <div className="absolute inset-0 bg-[#0e0e0ed0] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
-                <span className="bg-[var(--accent-peach)] text-[#550F00] text-xs font-bold uppercase tracking-[0.18em] px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                  {items[0].tag}
-                </span>
-                <p className="mt-4 text-xs text-[var(--text-body)] max-w-[28ch] opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                  {items[0].alt}
-                </p>
+          {items[0]?.url ? (
+            <Reveal className="h-full">
+              <div className="group relative aspect-[3/4] w-full overflow-hidden bg-[var(--bg-surface)] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.35)] border border-[var(--border-warm)]/60">
+                <Image
+                  src={items[0].url}
+                  alt={items[0].alt || "Tikkay Shikkay Grill"}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 580px"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                {/* Hover overlay with peach tag pill */}
+                <div className="absolute inset-0 bg-[#0e0e0ed0] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
+                  <span className="bg-[var(--accent-peach)] text-[#550F00] text-xs font-bold uppercase tracking-[0.18em] px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+                    {items[0].tag || "Behind the Scenes"}
+                  </span>
+                  <p className="mt-4 text-xs text-[var(--text-body)] max-w-[28ch] opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                    {items[0].alt || "Tikkay Shikkay Process"}
+                  </p>
+                </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          ) : null}
 
           {/* Right Column - Stacked Images */}
           <div className="flex flex-col gap-6 justify-between h-full">
             {items.slice(1, 3).map((item, index) => (
-              <Reveal key={item.id} delay={(index + 1) * 0.1} className="w-full">
-                <div className="group relative aspect-[16/10] w-full overflow-hidden bg-[var(--bg-surface)] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.35)] border border-[var(--border-warm)]/60">
-                  <Image
-                    src={item.url}
-                    alt={item.alt}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 580px"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Hover overlay with peach tag pill */}
-                  <div className="absolute inset-0 bg-[#0e0e0ed0] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
-                    <span className="bg-[var(--accent-peach)] text-[#550F00] text-xs font-bold uppercase tracking-[0.18em] px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                      {item.tag}
-                    </span>
-                    <p className="mt-3 text-xs text-[var(--text-body)] max-w-[35ch] opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                      {item.alt}
-                    </p>
+              item?.url ? (
+                <Reveal key={item.id || index} delay={(index + 1) * 0.1} className="w-full">
+                  <div className="group relative aspect-[16/10] w-full overflow-hidden bg-[var(--bg-surface)] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.35)] border border-[var(--border-warm)]/60">
+                    <Image
+                      src={item.url}
+                      alt={item.alt || "Tikkay Shikkay Process"}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 580px"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {/* Hover overlay with peach tag pill */}
+                    <div className="absolute inset-0 bg-[#0e0e0ed0] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
+                      <span className="bg-[var(--accent-peach)] text-[#550F00] text-xs font-bold uppercase tracking-[0.18em] px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+                        {item.tag || "Behind the Scenes"}
+                      </span>
+                      <p className="mt-3 text-xs text-[var(--text-body)] max-w-[35ch] opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                        {item.alt || "Tikkay Shikkay Process"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ) : null
             ))}
           </div>
         </div>
