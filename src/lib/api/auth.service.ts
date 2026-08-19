@@ -12,6 +12,7 @@ export interface RegisterInput {
 export interface LoginInput {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface AuthUser {
@@ -56,6 +57,14 @@ export const authService = {
 
   changePassword(data: ChangePasswordInput): Promise<void> {
     return api.post<void>('/auth/change-password', data);
+  },
+
+  forgotPassword(email: string): Promise<{ email?: string }> {
+    return api.post<{ email?: string }>('/auth/forgot-password', { email });
+  },
+
+  resetPassword(data: { email: string; otp: string; newPassword: string }): Promise<void> {
+    return api.post<void>('/auth/reset-password', data);
   },
 
   me(): Promise<AuthUser> {

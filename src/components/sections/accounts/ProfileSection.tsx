@@ -128,6 +128,7 @@ export function ProfileSection() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   const showFeedback = (
     type: "success" | "error",
@@ -263,8 +264,8 @@ export function ProfileSection() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={signOut}
-                  className="flex items-center gap-2 rounded-xl"
+                  onClick={() => setShowSignOutConfirm(true)}
+                  className="flex items-center gap-2 rounded-xl text-neutral-400 hover:text-rose-400"
                 >
                   <LogOut className="h-4 w-4" aria-hidden="true" />
                   Sign out
@@ -272,6 +273,48 @@ export function ProfileSection() {
               </div>
             </form>
           </Reveal>
+
+          {/* Sign Out Confirmation Modal */}
+          {showSignOutConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+                onClick={() => setShowSignOutConfirm(false)}
+              />
+              <div className="relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-[#161616] p-6 text-center text-[#e5e2e1] shadow-2xl">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400 mb-4">
+                  <LogOut className="h-6 w-6" />
+                </div>
+                <h3 className="font-[family:var(--font-serif)] text-lg font-bold uppercase text-white mb-2">
+                  Sign Out of Account?
+                </h3>
+                <p className="text-xs text-neutral-300 leading-relaxed mb-6">
+                  Are you sure you want to sign out? You will need to sign in again to view your loyalty status, favorites, and past orders.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowSignOutConfirm(false)}
+                    className="rounded-xl border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-neutral-300 hover:bg-white/10"
+                  >
+                    Cancel
+                  </button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={async () => {
+                      setShowSignOutConfirm(false);
+                      await signOut();
+                    }}
+                    className="rounded-xl py-2.5 text-xs font-bold uppercase"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Reveal delay={0.1}>
             <div className="flex flex-col gap-5 rounded-2xl border border-[var(--border-warm)] bg-[var(--bg-surface)] p-6">
