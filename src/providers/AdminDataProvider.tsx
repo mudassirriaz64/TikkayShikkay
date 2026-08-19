@@ -151,7 +151,14 @@ export function AdminDataProvider({
 
   useEffect(() => {
     setIsHydrated(true);
-  }, []);
+    // If initialData has live orders from database, sync to state
+    if (initialData?.orders?.orders && initialData.orders.orders.length > 0) {
+      setData((prev) => ({
+        ...prev,
+        orders: initialData.orders,
+      }));
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (isHydrated) {
