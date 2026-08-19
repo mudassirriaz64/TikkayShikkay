@@ -1,26 +1,33 @@
+import Link from "next/link";
 import { getReviews } from "@/lib/data/getReviews";
 import { TestimonialCard } from "@/components/ui/TestimonialCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
+import { ArrowRight, Star } from "lucide-react";
 
 export async function WallOfLove() {
   const reviews = await getReviews();
-  const approvedReviews = reviews.filter((r) => r.is_approved);
+  const approvedReviews = reviews.filter((r) => r.is_approved).slice(0, 3);
 
   return (
     <section className="border-y border-[var(--border-warm)]/30 bg-[var(--bg-base)] py-[80px]">
       <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
-        <div className="mb-16 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <SectionHeading
             eyebrow="Wall of Love"
             eyebrowColor="muted"
             title="Word on the street."
           />
+          
           <Reveal delay={0.15}>
-            <p className="hidden max-w-sm text-right text-[var(--text-body)] md:block">
-              Don&rsquo;t just take our word for it. Here&rsquo;s what our
-              community has to say.
-            </p>
+            <Link
+              href="/reviews"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-peach)] hover:text-white transition-colors group"
+            >
+              <Star className="h-3.5 w-3.5 fill-current text-[var(--accent-gold)]" />
+              <span>View All Customer Reviews ({reviews.filter((r) => r.is_approved).length})</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
           </Reveal>
         </div>
 

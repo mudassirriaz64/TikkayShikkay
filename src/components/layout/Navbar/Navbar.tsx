@@ -103,6 +103,17 @@ export function Navbar({ socials, contact }: NavbarProps) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-3 md:gap-4">
+            <Button
+              variant="primary"
+              size="sm"
+              className={cn(
+                "hidden rounded-xl px-5 md:inline-flex transition-all duration-300 ease-in-out",
+                scrolled ? "h-9 text-xs" : "h-10 text-sm"
+              )}
+            >
+              Order on WhatsApp
+            </Button>
+
             <Link
               href="/checkout"
               aria-label="View Cart & Checkout"
@@ -129,17 +140,6 @@ export function Navbar({ socials, contact }: NavbarProps) {
             >
               <UserRound className="h-5 w-5" aria-hidden="true" />
             </Link>
-
-            <Button
-              variant="primary"
-              size="sm"
-              className={cn(
-                "hidden rounded-xl px-5 md:inline-flex transition-all duration-300 ease-in-out",
-                scrolled ? "h-9 text-xs" : "h-10 text-sm"
-              )}
-            >
-              Order on WhatsApp
-            </Button>
 
             {/* Mobile Menu Button */}
             <button

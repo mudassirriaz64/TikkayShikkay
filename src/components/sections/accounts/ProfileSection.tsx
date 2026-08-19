@@ -356,7 +356,7 @@ export function ProfileSection() {
               <SecurityRow
                 icon={KeyRound}
                 title="Password"
-                subtitle={password ? "••••••••••" : "Not set yet"}
+                subtitle="••••••••••••"
                 open={openPanel === "password"}
                 onToggle={() => togglePanel("password")}
               >
@@ -364,21 +364,21 @@ export function ProfileSection() {
                   onSubmit={handleChangePassword}
                   className="flex flex-col gap-3"
                 >
-                  {password ? (
-                    <PasswordInput
-                      id="sec-current-password"
-                      label="Current password"
-                      value={currentPassword}
-                      onChange={setCurrentPassword}
-                      autoComplete="current-password"
-                    />
-                  ) : null}
+                  <PasswordInput
+                    id="sec-current-password"
+                    label="Current password"
+                    value={currentPassword}
+                    onChange={setCurrentPassword}
+                    autoComplete="current-password"
+                    required
+                  />
                   <PasswordInput
                     id="sec-new-password"
                     label="New password"
                     value={newPassword}
                     onChange={setNewPassword}
                     autoComplete="new-password"
+                    required
                   />
                   <PasswordInput
                     id="sec-confirm-password"
@@ -386,8 +386,9 @@ export function ProfileSection() {
                     value={confirmPassword}
                     onChange={setConfirmPassword}
                     autoComplete="new-password"
+                    required
                   />
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pt-1">
                     <Button size="sm" className="rounded-lg">
                       Update password
                     </Button>

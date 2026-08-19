@@ -116,3 +116,13 @@ h6 {
     box-shadow: 0 0 24px -2px rgba(217, 56, 30, 0.45);
   }
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+

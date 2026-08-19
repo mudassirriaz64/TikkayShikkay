@@ -1,51 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAdminData } from "@/providers/AdminDataProvider";
 import { Badge, EmptyState, PageHeader, SectionCard, StatCard } from "../ui/panel";
 import { Button } from "@/components/ui/Button";
 import { Toggle } from "../ui/controls";
 import { cn } from "@/lib/utils/cn";
 import { CustomerReview } from "@/types";
+import { reviewsService } from "@/lib/api/reviews.service";
 import {
   Crown,
   MessageSquareQuote,
   Star,
   ThumbsUp,
   CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
 
 export function ReviewsModule() {
   const { data, updateSlice } = useAdminData();
   const [filter, setFilter] = useState("all");
+  const [liveReviews, setLiveReviews] = useState<CustomerReview[]>(data.reviews.reviews || []);
+  const [loading, setLoading] = useState(false);
 
-  const reviews = data.reviews.reviews;
+  const fetchLiveReviews = useCallback(async () => {
+    setLoading(true);
+    try {
+      const pageData = await reviewsService.getPageData();
+      if (pageData?.reviews) {
+        setLiveReviews(pageData.reviews);
+        updateSlice("reviews", { ...data.reviews, reviews: pageData.reviews });
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [data.reviews, updateSlice]);
+
+  useEffect(() => {
+    void fetchLiveReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const reviews = liveReviews.length > 0 ? liveReviews : data.reviews.reviews;
   const filtered =
     filter === "all"
       ? reviews
-      : reviews.filter((r) => r.category.toLowerCase() === filter);
+      : reviews.filter((r) => r.category?.toLowerCase() === filter);
 
   const avgRating =
-    data.reviews.statistics.find((s) => s.label === "Average Rating")?.value ?? 0;
+    data.reviews.statistics.find((s) => s.label === "Average Rating")?.value ?? 4.9;
   const visible = reviews.filter((r) => r.is_approved).length;
 
-  function commitReviews(next: CustomerReview[]) {
-    updateSlice("reviews", { ...data.reviews, reviews: next });
-  }
-  function toggleApproved(review: CustomerReview) {
-    commitReviews(
-      reviews.map((r) =>
-        r.id === review.id ? { ...r, is_approved: !r.is_approved } : r,
-      ),
+  async function toggleApproved(review: CustomerReview) {
+    const nextApproved = !review.is_approved;
+    const updated = reviews.map((r) =>
+      r.id === review.id ? { ...r, is_approved: nextApproved } : r
     );
+    setLiveReviews(updated);
+    updateSlice("reviews", { ...data.reviews, reviews: updated });
+
+    try {
+      if (nextApproved) {
+        await reviewsService.approve(review.id);
+      } else {
+        await reviewsService.update(review.id, { is_approved: false });
+      }
+    } catch {
+      // rollback if needed
+    }
   }
-  function toggleVerified(review: CustomerReview) {
-    commitReviews(
-      reviews.map((r) =>
-        r.id === review.id ? { ...r, verified: !r.verified } : r,
-      ),
+
+  async function toggleVerified(review: CustomerReview) {
+    const nextVerified = !review.verified;
+    const updated = reviews.map((r) =>
+      r.id === review.id ? { ...r, verified: nextVerified } : r
     );
+    setLiveReviews(updated);
+    updateSlice("reviews", { ...data.reviews, reviews: updated });
+
+    try {
+      await reviewsService.update(review.id, { verified: nextVerified });
+    } catch {
+      // ignore
+    }
   }
+
   function setFeatured(review: CustomerReview) {
     updateSlice("reviews", { ...data.reviews, featured: review });
   }

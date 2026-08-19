@@ -16,7 +16,9 @@ export function AccountsSignIn() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [fieldError, setFieldError] = useState("");
 
@@ -31,12 +33,18 @@ export function AccountsSignIn() {
     setFieldError("");
     clearAuthError();
 
-    if (mode === "register" && !name.trim()) {
-      setFieldError("Please enter your name.");
-      return;
+    if (mode === "register") {
+      if (!name.trim()) {
+        setFieldError("Please enter your full name.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setFieldError("Passwords do not match. Please re-enter.");
+        return;
+      }
     }
     if (!email.trim()) {
-      setFieldError("Please enter your email.");
+      setFieldError("Please enter your email address.");
       return;
     }
     if (!password || password.length < 6) {
@@ -50,6 +58,7 @@ export function AccountsSignIn() {
         await createAccount({
           name: name.trim(),
           email: email.trim(),
+          phone: phone.trim() || undefined,
           password,
         });
       } else {
@@ -94,7 +103,7 @@ export function AccountsSignIn() {
               <p className="text-sm leading-relaxed text-[var(--text-body)]">
                 {mode === "login"
                   ? "Sign in to track your orders, save favourites and manage your profile."
-                  : "Register to start ordering and track your favourite dishes."}
+                  : "Register to start ordering, track your orders and save favourite dishes."}
               </p>
             </div>
 
@@ -123,16 +132,26 @@ export function AccountsSignIn() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {mode === "register" && (
-                <ContactInput
-                  id="auth-name"
-                  label="Full name"
-                  value={name}
-                  onChange={setName}
-                  autoComplete="name"
-                  required
-                />
+                <>
+                  <ContactInput
+                    id="auth-name"
+                    label="Full name"
+                    value={name}
+                    onChange={setName}
+                    autoComplete="name"
+                    required
+                  />
+                  <ContactInput
+                    id="auth-phone"
+                    label="Phone number (optional)"
+                    type="tel"
+                    value={phone}
+                    onChange={setPhone}
+                    autoComplete="tel"
+                  />
+                </>
               )}
               <ContactInput
                 id="auth-email"
@@ -145,12 +164,22 @@ export function AccountsSignIn() {
               />
               <PasswordInput
                 id="auth-password"
-                label="Password"
+                label={mode === "register" ? "Create Password (min. 6 characters)" : "Password"}
                 value={password}
                 onChange={setPassword}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 required
               />
+              {mode === "register" && (
+                <PasswordInput
+                  id="auth-confirm-password"
+                  label="Confirm Password"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  autoComplete="new-password"
+                  required
+                />
+              )}
 
               {(fieldError || authError) && (
                 <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">
@@ -158,7 +187,7 @@ export function AccountsSignIn() {
                 </p>
               )}
 
-              <Button type="submit" disabled={loading} className="w-full rounded-xl">
+              <Button type="submit" disabled={loading} className="w-full rounded-xl mt-2">
                 {loading
                   ? mode === "login"
                     ? "Signing in…"
@@ -169,29 +198,31 @@ export function AccountsSignIn() {
               </Button>
             </form>
 
-            {mode === "login" ? (
-              <p className="text-center text-xs text-[var(--text-faint)]">
-                Don&apos;t have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchMode("register")}
-                  className="font-bold text-[var(--accent-peach)] hover:underline"
-                >
-                  Register here
-                </button>
-              </p>
-            ) : (
-              <p className="text-center text-xs text-[var(--text-faint)]">
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchMode("login")}
-                  className="font-bold text-[var(--accent-peach)] hover:underline"
-                >
-                  Sign in
-                </button>
-              </p>
-            )}
+            <div className="text-center text-xs text-[var(--text-faint)]">
+              {mode === "login" ? (
+                <p>
+                  Don&rsquo;t have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => switchMode("register")}
+                    className="font-bold text-[var(--accent-peach)] hover:underline"
+                  >
+                    Register
+                  </button>
+                </p>
+              ) : (
+                <p>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => switchMode("login")}
+                    className="font-bold text-[var(--accent-peach)] hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              )}
+            </div>
           </motion.div>
         </div>
       </div>
