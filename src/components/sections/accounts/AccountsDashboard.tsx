@@ -33,6 +33,7 @@ interface AccountsDashboardProps {
 export function AccountsDashboard({ data }: AccountsDashboardProps) {
   const { profile, favorites, reviews, signOut } = useAccount();
   const [activeId, setActiveId] = useState("orders");
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [cateringCount, setCateringCount] = useState<number | undefined>(undefined);
 
   useEffect(() => {
@@ -93,8 +94,8 @@ export function AccountsDashboard({ data }: AccountsDashboardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={signOut}
-              className="flex items-center gap-2 rounded-xl"
+              onClick={() => setShowSignOutModal(true)}
+              className="flex items-center gap-2 rounded-xl text-[var(--text-faint)] hover:text-rose-400"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
               Sign out
@@ -102,6 +103,48 @@ export function AccountsDashboard({ data }: AccountsDashboardProps) {
           </div>
         </div>
       </section>
+
+      {/* Sign Out Confirmation Modal */}
+      {showSignOutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowSignOutModal(false)}
+          />
+          <div className="relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--border-warm)] bg-[var(--bg-surface)] p-6 text-center text-[var(--text-primary)] shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400 mb-4">
+              <LogOut className="h-6 w-6" />
+            </div>
+            <h3 className="font-[family:var(--font-serif)] text-lg font-bold uppercase text-[var(--text-primary)] mb-2">
+              Sign Out of Account?
+            </h3>
+            <p className="text-xs text-[var(--text-body)] leading-relaxed mb-6">
+              Are you sure you want to sign out? You will need to sign in again to view your loyalty status, favorites, and past orders.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSignOutModal(false)}
+                className="rounded-xl border border-[var(--border-warm)] bg-[var(--bg-surface-alt)] py-2.5 text-xs font-bold text-[var(--text-body)] hover:text-[var(--text-primary)]"
+              >
+                Cancel
+              </button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={async () => {
+                  setShowSignOutModal(false);
+                  await signOut();
+                }}
+                className="rounded-xl py-2.5 text-xs font-bold uppercase"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="bg-[var(--bg-base)] pt-8">
         <div className="mx-auto max-w-[1280px] px-4 lg:px-[64px]">
